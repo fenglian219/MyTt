@@ -157,7 +157,7 @@
                 </div>
                 <div class="txt-box">
                   <a href="/goods/show-98.html">{{ item.title }}</a>
-                  <span>{{ item.add_time }}</span>
+                  <span>{{ item.add_time | formatTime }}</span>
                 </div>
               </li>
              
@@ -613,6 +613,8 @@
 </template>
 
 <script>
+// 导入momentjs
+import moment from 'moment';
 export default {
     data(){
         return{
@@ -621,13 +623,26 @@ export default {
             toplist:[]
         }
     },
+    filters:{
+        formatTime(value){
+           return moment(value).format('YYYY-MM-DD');
+        }
+    },
     created() {
+
+        // 请求右侧热门商品
         this.$ajax.get('http://111.230.232.110:8899/site/goods/gettopdata/goods').then(res=>{
             console.log(res);
             this.catelist = res.data.message.catelist;
             this.sliderlist = res.data.message.sliderlist;
             this.toplist = res.data.message.toplist;
         });
+
+        // 请求商品列表
+        this.$ajax.get('http://111.230.232.110:8899/site/goods/getgoodsgroup').then(res=>{
+            console.log(res);
+        });
+
     },
 };
 </script>
