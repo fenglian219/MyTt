@@ -108,59 +108,26 @@
           </div>
           <!--幻灯片-->
           <div class="left-705">
-            <div class="banner-img">
-              <div id="focus-box" class="focus-box">
-                <ul class="slides">
-                  <li
-                    class
-                    style="width: 100%;height:100%; float: left; margin-right: -100%; position: relative; opacity: 0; display: block; z-index: 1;"
-                  >
-                    <a href="/goods.html">
-                      <img
-                        style="width: 100%;height:100%;"
-                        src="http://39.108.135.214:8899/imgs/SJ4EgwosX0wTqvyAvhtFGT1w.jpg"
-                        draggable="false"
-                      >
-                    </a>
-                  </li>
-                  <li
-                    style="width: 100%;height:100%; float: left; margin-right: -100%; position: relative; opacity: 1; display: block; z-index: 2;"
-                    class="flex-active-slide"
-                  >
-                    <a href="/goods.html">
-                      <img
-                        style="width: 100%;height:100%;"
-                        src="http://39.108.135.214:8899/upload/201504/20/thumb_201504200314272543.jpg"
-                        draggable="false"
-                      >
-                    </a>
-                  </li>
-                </ul>
-                <ol class="flex-control-nav flex-control-paging">
-                  <li>
-                    <a class>1</a>
-                  </li>
-                  <li>
-                    <a class="flex-active">2</a>
-                  </li>
-                </ol>
-              </div>
-            </div>
+            <!-- Element的走马灯 -->
+            <el-carousel height="341px">
+              <el-carousel-item class="carousel-a" v-for="(item, index) in sliderlist" :key="index">
+                <img class="carousel-img" :src="item.img_url" alt="">
+              </el-carousel-item>
+            </el-carousel>
           </div>
           <!--/幻灯片-->
           <div class="left-220">
             <ul class="side-img-list">
               <li v-for="(item, index) in toplist" :key="index">
                 <div class="img-box">
-                  <label>{{ index }}</label>
+                  <label>{{ index+1}}</label>
                   <img :src="item.img_url">
                 </div>
                 <div class="txt-box">
                   <a href="/goods/show-98.html">{{ item.title }}</a>
-                  <span>{{ item.add_time | formatTime }}</span>
+                  <span>{{ item.add_time | globalTimeFormat }}</span>
                 </div>
               </li>
-             
             </ul>
           </div>
         </div>
@@ -168,10 +135,14 @@
     </div>
     <div v-for="(item, index) in goodsList" :key="index" class="section">
       <div class="main-tit">
-        <h2>{{ item.catetitle }}}</h2>
+        <h2>{{ item.catetitle }}</h2>
         <p>
-          <a v-for="(it, index) in item.level2catelist" :key="index" href="/goods/43.html">手机通讯</a>
-         
+          <a
+            v-for="(it, index) in item.level2catelist"
+            :key="index"
+            href="/goods/43.html"
+          >{{ it.subcatetitle}}</a>
+
           <a href="/goods/40.html">
             更多
             <i>+</i>
@@ -182,11 +153,10 @@
         <div class="wrap-box">
           <ul class="img-list">
             <li v-for="(it, index) in item.datas" :key="index">
-              <a href="#/site/goodsinfo/87" class>
+              <router-link :to="'/detail/'+it.artID">
+                <!-- <a href="#/site/goodsinfo/87" class> -->
                 <div class="img-box">
-                  <img
-                    :src="it.img_url"
-                  >
+                  <img :src="it.img_url">
                 </div>
                 <div class="info">
                   <h3>{{ it.artTitle }}</h3>
@@ -201,52 +171,60 @@
                     </span>
                   </p>
                 </div>
-              </a>
+                <!-- </a> -->
+              </router-link>
             </li>
-            
           </ul>
         </div>
       </div>
     </div>
-   
   </div>
 </template>
 
 <script>
 // 导入momentjs
-import moment from 'moment';
+import moment from "moment";
 export default {
-    data(){
-        return{
-            catelist:[],
-            sliderlist:[],
-            toplist:[],
-            goodsList:[]
-        }
-    },
-    filters:{
-        formatTime(value){
-           return moment(value).format('YYYY-MM-DD');
-        }
-    },
-    created() {
+  name: "index",
+  data() {
+    return {
+      catelist: [],
+      sliderlist: [],
+      toplist: [],
+      goodsList: []
+    };
+  },
+  // filters:{
+  //     formatTime(value){
+  //        return moment(value).format('YYYY-MM-DD');
+  //     }
+  // },
+  created() {
+    // 请求右侧热门商品
+    this.$axios.get("/site/goods/gettopdata/goods").then(res => {
+      this.catelist = res.data.message.catelist;
+      this.sliderlist = res.data.message.sliderlist;
+      this.toplist = res.data.message.toplist;
+    });
 
-        // 请求右侧热门商品
-        this.$ajax.get('http://111.230.232.110:8899/site/goods/gettopdata/goods').then(res=>{
-            this.catelist = res.data.message.catelist;
-            this.sliderlist = res.data.message.sliderlist;
-            this.toplist = res.data.message.toplist;
-        });
-
-        // 请求商品列表
-        this.$ajax.get('http://111.230.232.110:8899/site/goods/getgoodsgroup').then(res=>{
-            console.log(res);
-            this.goodsList = res.data.message
-        });
-
-    },
+    // 请求商品列表
+    this.$axios.get("/site/goods/getgoodsgroup").then(res => {
+      console.log(res);
+      this.goodsList = res.data.message;
+    });
+  }
 };
 </script>
 
 <style>
+.carousel-a{
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.carousel-img{
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 </style>
